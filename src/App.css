@@ -1,0 +1,8 @@
+/* App.css — keep this minimal; all real styles are in index.css */
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}

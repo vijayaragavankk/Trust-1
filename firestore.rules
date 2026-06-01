@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Gallery (admin write, public read) ─────────────────────────────────
+    match /gallery/{docId} {
+      allow read:  if true;
+      // BUG FIX: original rule allowed ALL writes until June 24, 2026 – that's
+      // effectively open to the world. Now only authenticated admins can write.
+      allow write: if request.auth != null;
+    }
+
+    // ── Contact form submissions (public write, admin read only) ──────────
+    match /contacts/{docId} {
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'message'])
+                    && request.resource.data.name    is string
+                    && request.resource.data.email   is string
+                    && request.resource.data.message is string;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // ── Block everything else ─────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

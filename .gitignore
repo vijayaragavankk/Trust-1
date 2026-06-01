@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Vite cache
+.vite/
+
+# Firebase cache
+.firebase/
+
+# Environment variables – NEVER commit these
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Firebase emulator data
+.firebaserc.local
+firebase-debug.log
+firestore-debug.log
+storage.rules.debug
+
+# Vercel
+.vercel/

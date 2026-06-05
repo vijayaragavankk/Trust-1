@@ -1,26 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-
-function FadeIn({ children, delay = 0 }) {
-  const ref = useRef();
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-  return (
-    <div
-      ref={ref}
-      style={{
-        opacity:    visible ? 1 : 0,
-        transform:  visible ? 'none' : 'translateY(30px)',
-        transition: `opacity 0.8s ease ${delay}s, transform 0.8s ease ${delay}s`,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
+// src/pages/About.jsx
+import FadeIn from '../components/FadeIn';
 
 const volunteers = [
   { name: 'Anjali',  role: 'Volunteer',         img: '/volunteer1.jpg' },
@@ -49,7 +28,7 @@ const testimonials = [
   { name: 'Vikram', quote: 'Volunteering here changed my perspective on life and service.' },
 ];
 
-// BUG FIX: Replace 'YOUR_VIDEO_ID' with your actual YouTube video ID before deploying
+// Replace 'YOUR_VIDEO_ID' with your actual YouTube video ID
 const YOUTUBE_VIDEO_ID = 'YOUR_VIDEO_ID';
 
 function About() {
@@ -57,6 +36,7 @@ function About() {
     <div className="about-bg">
       <div className="about-overlay">
         <div className="about-page">
+
           <FadeIn><h2 className="about-heading">About Us</h2></FadeIn>
 
           {sections.map((s, i) => (
@@ -89,7 +69,9 @@ function About() {
                     <img
                       src={v.img}
                       alt={v.name}
-                      // BUG FIX: added fallback so broken images don't render broken icon
+                      loading="lazy"
+                      width="120"
+                      height="120"
                       onError={(e) => { e.target.style.display = 'none'; }}
                     />
                     <div className="volunteer-card-info">
@@ -130,7 +112,6 @@ function About() {
             </section>
           </FadeIn>
 
-          {/* BUG FIX: Only render the video embed if a real video ID is set */}
           {YOUTUBE_VIDEO_ID !== 'YOUR_VIDEO_ID' && (
             <FadeIn delay={1.0}>
               <section className="about-section">
@@ -140,6 +121,7 @@ function About() {
                     src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}`}
                     frameBorder="0"
                     allowFullScreen
+                    loading="lazy"
                     title="Ini_yoruvithiseivom Story"
                     style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: 8 }}
                   />
@@ -147,6 +129,7 @@ function About() {
               </section>
             </FadeIn>
           )}
+
         </div>
       </div>
     </div>

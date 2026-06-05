@@ -2,11 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- BUG FIX: was /vite.svg (generic). Changed to proper favicon path. -->
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- SEO meta tags -->
+    <!-- SEO -->
     <meta name="description" content="Ini_yoruvithiseivom Trust – serving meals, supporting orphanages, and empowering communities across Tamil Nadu." />
     <meta name="theme-color" content="#0d1117" />
 
@@ -15,14 +14,15 @@
     <meta property="og:description" content="Together We Serve. Together We Rise." />
     <meta property="og:type"        content="website" />
 
-    <!-- AOS animations CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+    <!--
+      Razorpay SDK has been removed from here.
+      It is now loaded dynamically only on the /donate page (Donate.jsx → useRazorpay hook).
+      This saves ~45KB on every page that isn't /donate.
 
-    <!-- Razorpay SDK (loaded early so it's ready when donate is clicked) -->
-    <!-- BUG FIX: was loaded without async; can block parse on slow networks -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+      AOS CSS has also been removed — it was only used in OurWork.jsx which
+      now uses the shared FadeIn component (IntersectionObserver) instead.
+    -->
 
-    <!-- BUG FIX: title was "Vite + React" (default placeholder) -->
     <title>Ini_yoruvithiseivom Trust</title>
   </head>
   <body>

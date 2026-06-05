@@ -1,52 +1,77 @@
-import { useEffect, useState } from 'react';
+// src/components/ServiceGallery.jsx
+// Changes vs original:
+//  • loading="lazy" + explicit width/height on every <img> (fixes CLS + defers off-screen images)
+//  • Gallery reveal uses IntersectionObserver instead of a bare setTimeout
+//  • obs.disconnect() after first intersection so the observer doesn't keep firing
+import { useEffect, useRef, useState } from 'react';
 
-// FIX: these images must be in /public/gallery/ (copy from src/public/gallery/)
 const images = [
-  { src: '/gallery/clean.jpg',     alt: 'Community cleanup' },
-  { src: '/gallery/food.jpg',      alt: 'Food distribution' },
-  { src: '/gallery/health.jpg',    alt: 'Health camp' },
-  { src: '/gallery/help.jpg',      alt: 'Roadside help' },
-  { src: '/gallery/orphan.jpg',    alt: 'Orphanage visit' },
-  { src: '/gallery/orphanage.jpg', alt: 'Orphanage support' },
+  { src: '/gallery/clean.jpg',     alt: 'Community cleanup'   },
+  { src: '/gallery/food.jpg',      alt: 'Food distribution'   },
+  { src: '/gallery/health.jpg',    alt: 'Health camp'         },
+  { src: '/gallery/help.jpg',      alt: 'Roadside help'       },
+  { src: '/gallery/orphan.jpg',    alt: 'Orphanage visit'     },
+  { src: '/gallery/orphanage.jpg', alt: 'Orphanage support'   },
 ];
 
-function GalleryCard({ src, alt, onClick }) {
-  const [hover, setHover] = useState(false);
+function GalleryCard({ src, alt, index, visible, onClick }) {
+  const [hover,    setHover]    = useState(false);
   const [imgError, setImgError] = useState(false);
 
   return (
     <div
-      style={{ position: 'relative', width: '100%', height: '190px', overflow: 'hidden', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 6px 18px rgba(0,0,0,0.3)', background: '#1a1a1a' }}
+      className="gallery-card-wrap"
+      style={{
+        opacity:    visible ? 1 : 0,
+        transform:  visible ? 'translateY(0)' : 'translateY(30px)',
+        transition: `opacity 0.55s ease ${index * 0.1}s, transform 0.55s ease ${index * 0.1}s`,
+      }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`View ${alt}`}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
     >
       {imgError ? (
-        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555', fontSize: '0.85em' }}>
-          📷 {alt}
-        </div>
+        <div className="gallery-card-placeholder">📷 {alt}</div>
       ) : (
         <img
           src={src}
           alt={alt}
+          loading="lazy"          /* ← defer off-screen images          */
+          width="440"             /* ← prevents layout shift (CLS)       */
+          height="280"
           onError={() => setImgError(true)}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s ease', transform: hover ? 'scale(1.1)' : 'scale(1)' }}
+          style={{ transform: hover ? 'scale(1.08)' : 'scale(1)' }}
+          className="gallery-card-img"
         />
       )}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', background: 'rgba(0,0,0,0.6)', color: '#fff', padding: '0.5em', fontSize: '0.9em', textAlign: 'center', transition: 'opacity 0.3s', opacity: hover ? 1 : 0 }}>
-        {alt}
-      </div>
+      <div className={`gallery-card-label${hover ? ' visible' : ''}`}>{alt}</div>
     </div>
   );
 }
 
 function ServiceGallery() {
-  const [visible,  setVisible]  = useState(false);
+  const sectionRef              = useRef();
+  const [sectionVisible, setVisible] = useState(false);
   const [lightbox, setLightbox] = useState({ show: false, index: 0 });
   const [loading,  setLoading]  = useState(true);
 
-  useEffect(() => { setTimeout(() => setVisible(true), 100); }, []);
+  // Reveal cards when the section scrolls into view
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
+  // Keyboard navigation for lightbox
   useEffect(() => {
     const onKey = (e) => {
       if (!lightbox.show) return;
@@ -56,43 +81,54 @@ function ServiceGallery() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [lightbox]);
+  }, [lightbox.show]);
 
   const open  = (i) => { setLightbox({ show: true, index: i }); setLoading(true); };
   const close = ()  =>   setLightbox({ show: false, index: 0 });
-  const next  = ()  =>   setLightbox(p => ({ ...p, index: (p.index + 1) % images.length }));
+  const next  = ()  =>   setLightbox(p => ({ ...p, index: (p.index + 1) % images.length, }));
   const prev  = ()  =>   setLightbox(p => ({ ...p, index: (p.index - 1 + images.length) % images.length }));
 
   return (
-    <section className="gallery-section">
+    <section className="gallery-section" ref={sectionRef}>
       <div className="gallery-inner">
-        <h2 className="gallery-heading">Moments from Our Service Gallery</h2>
+        <h2 className="gallery-heading">Moments from Our Service</h2>
         <div className="gallery-grid">
           {images.map((img, i) => (
-            <div
+            <GalleryCard
               key={i}
-              style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(30px)', transition: `all 0.6s ease ${i * 0.15}s` }}
-            >
-              <GalleryCard src={img.src} alt={img.alt} onClick={() => open(i)} />
-            </div>
+              src={img.src}
+              alt={img.alt}
+              index={i}
+              visible={sectionVisible}
+              onClick={() => open(i)}
+            />
           ))}
         </div>
       </div>
 
+      {/* Lightbox */}
       {lightbox.show && (
-        <div className="modal-overlay" onClick={close}>
-          <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '85vh', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
-            {loading && <div style={{ width: 50, height: 50, border: '6px solid #fff', borderTop: '6px solid #0d6efd', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />}
+        <div
+          className="modal-overlay"
+          onClick={close}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image lightbox"
+        >
+          <div className="lightbox-inner" onClick={(e) => e.stopPropagation()}>
+            {loading && <div className="lightbox-spinner" />}
             <img
               src={images[lightbox.index].src}
               alt={images[lightbox.index].alt}
               onLoad={() => setLoading(false)}
-              style={{ maxWidth: '100%', maxHeight: '75vh', borderRadius: 10, display: loading ? 'none' : 'block', boxShadow: '0 0 20px rgba(255,255,255,0.2)' }}
+              /* No lazy here — user explicitly opened this image */
+              style={{ display: loading ? 'none' : 'block' }}
+              className="lightbox-img"
             />
-            <p style={{ color: '#fff', marginTop: '0.5em' }}>{images[lightbox.index].alt}</p>
-            <button onClick={close} style={{ position: 'absolute', top: -10, right: -10, background: '#fff', color: '#333', border: 'none', borderRadius: '50%', width: 30, height: 30, fontSize: '1.4em', cursor: 'pointer', lineHeight: 1 }}>×</button>
-            <button onClick={prev} style={{ position: 'absolute', top: '45%', left: -40, fontSize: '2.2em', color: '#fff', background: 'none', border: 'none', cursor: 'pointer' }}>‹</button>
-            <button onClick={next} style={{ position: 'absolute', top: '45%', right: -40, fontSize: '2.2em', color: '#fff', background: 'none', border: 'none', cursor: 'pointer' }}>›</button>
+            <p className="lightbox-caption">{images[lightbox.index].alt}</p>
+            <button className="lightbox-close" onClick={close} aria-label="Close">×</button>
+            <button className="lightbox-prev"  onClick={prev}  aria-label="Previous">‹</button>
+            <button className="lightbox-next"  onClick={next}  aria-label="Next">›</button>
           </div>
         </div>
       )}

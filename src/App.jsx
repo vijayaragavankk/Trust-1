@@ -1,3 +1,4 @@
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
@@ -10,15 +11,17 @@ import ServicesPage from './pages/ServicesPage';
 import ContactPage  from './pages/Contact';
 import DonatePage   from './pages/Donate';
 import OurWork      from './pages/OurWork';
+import Volunteer    from './pages/Volunteer';
 
 import AdminLogin     from './admin/AdminLogin';
 import AdminDashboard from './admin/AdminDashboard';
 import ProtectedRoute from './admin/ProtectedRoute';
 
 const NotFound = () => (
-  <div style={{ padding: '4em', textAlign: 'center', color: '#f00' }}>
-    <h1>404 – Page Not Found</h1>
-    <p>The page you&apos;re looking for does not exist.</p>
+  <div style={{ padding: '6em 2em', textAlign: 'center', color: '#ccc' }}>
+    <h1 style={{ fontSize: '3rem', color: '#00c8ff' }}>404</h1>
+    <p style={{ fontSize: '1.2rem' }}>Page not found.</p>
+    <a href="/" style={{ color: '#00c8ff', textDecoration: 'underline' }}>Go Home</a>
   </div>
 );
 
@@ -36,12 +39,13 @@ function App() {
         <Header />
         <main>
           <Routes>
-            <Route path="/"           element={<Home />} />
-            <Route path="/about"      element={<AboutPage />} />
-            <Route path="/services"   element={<ServicesPage />} />
-            <Route path="/our-work"   element={<OurWork />} />
-            <Route path="/contact"    element={<ContactPage />} />
-            <Route path="/donate"     element={<DonatePage />} />
+            <Route path="/"            element={<Home />} />
+            <Route path="/about"       element={<AboutPage />} />
+            <Route path="/services"    element={<ServicesPage />} />
+            <Route path="/our-work"    element={<OurWork />} />
+            <Route path="/contact"     element={<ContactPage />} />
+            <Route path="/donate"      element={<DonatePage />} />
+            <Route path="/volunteer"   element={<Volunteer />} />
 
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route

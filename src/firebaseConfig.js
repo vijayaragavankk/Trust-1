@@ -1,7 +1,4 @@
 // src/firebaseConfig.js
-// Uses your real Firebase project values directly.
-// For production, replace with VITE_* env vars once you've set up .env
-
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
@@ -21,10 +18,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// Analytics is browser-only — skip in SSR / non-browser contexts
-isSupported().then((supported) => {
-  if (supported) getAnalytics(app);
-});
+isSupported().then((ok) => { if (ok) getAnalytics(app); });
 
 export const auth    = getAuth(app);
 export const db      = getFirestore(app);

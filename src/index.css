@@ -1234,6 +1234,24 @@ main {
   border-color: #00c8ff;
 }
 
+/* Donor field wrappers — label + input stacked (new in Donate.jsx) */
+.donate-field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+.donate-field-label {
+  font-size: 0.82rem;
+  color: #aaa;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.donate-field--error {
+  border-color: #f87171 !important;
+  background: #2d1212 !important;
+}
+
+
 /* Pay buttons */
 .donate-pay-btn {
   width: 100%;

@@ -1,28 +1,51 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Gallery (admin write, public read) ─────────────────────────────────
-    match /gallery/{docId} {
+    // ── Settings: public read, admin write only ──
+    match /settings/{doc} {
       allow read:  if true;
-      // BUG FIX: original rule allowed ALL writes until June 24, 2026 – that's
-      // effectively open to the world. Now only authenticated admins can write.
       allow write: if request.auth != null;
     }
 
-    // ── Contact form submissions (public write, admin read only) ──────────
-    match /contacts/{docId} {
-      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'message'])
-                    && request.resource.data.name    is string
-                    && request.resource.data.email   is string
-                    && request.resource.data.message is string;
+    // ── Gallery: public read, admin write only ──
+    match /gallery/{doc} {
+      allow read:  if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── Contacts: anyone can create, only admin can read/update/delete ──
+    match /contacts/{doc} {
+      allow create: if request.resource.data.keys().hasAll(['name','email','message'])
+                    && request.resource.data.name  is string
+                    && request.resource.data.email is string
+                    && request.resource.data.name.size()  <= 100
+                    && request.resource.data.email.size() <= 200
+                    && request.resource.data.message.size() <= 2000;
       allow read, update, delete: if request.auth != null;
     }
 
-    // ── Block everything else ─────────────────────────────────────────────
+    // ── Volunteers: anyone can create (with required fields), admin manages ──
+    match /volunteers/{doc} {
+      allow create: if request.resource.data.keys().hasAll(['name','email','phone','availability'])
+                    && request.resource.data.name.size()  > 0
+                    && request.resource.data.name.size()  <= 100
+                    && request.resource.data.email.size() > 0
+                    && request.resource.data.phone.size() > 0;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // ── Donations: anyone can create a record (after Razorpay callback), admin reads ──
+    match /donations/{doc} {
+      allow create: if request.resource.data.keys().hasAll(['amount','paymentId'])
+                    && request.resource.data.amount is number
+                    && request.resource.data.amount > 0;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // ── Everything else: admin only ──
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if request.auth != null;
     }
   }
 }

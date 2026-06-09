@@ -2320,3 +2320,52 @@ a.contact-info-value:hover { color: #0d6efd; }
   transition: background 0.2s;
 }
 .error-boundary-btn:hover { background: #bb2d3b; }
+
+/* ── Gallery filter bar ─────────────────────────── */
+.gallery-filter-bar {
+  display: flex;
+  gap: 0.5em;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2em;
+}
+.gallery-filter-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid #2a2a2a;
+  color: #888;
+  padding: 0.35em 1em;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: all 0.2s;
+}
+.gallery-filter-btn:hover {
+  border-color: #00c8ff;
+  color: #fff;
+}
+.gallery-filter-btn.active {
+  background: rgba(0, 200, 255, 0.12);
+  border-color: #00c8ff;
+  color: #00c8ff;
+  font-weight: 600;
+}
+
+/* ── Gallery loading skeletons ──────────────────── */
+.gallery-loading {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5em;
+  padding: 1em 0;
+}
+.gallery-skeleton {
+  height: 220px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+

@@ -31,37 +31,46 @@ function ScrollToTop() {
   return null;
 }
 
+function AppLayout() {
+  const { pathname } = useLocation();
+  const isAdminRoute = pathname.startsWith('/admin');
+
+  return (
+    <div className="app dark-mode">
+      <ScrollToTop />
+      {!isAdminRoute && <Header />}
+      <main>
+        <Routes>
+          <Route path="/"            element={<Home />} />
+          <Route path="/about"       element={<AboutPage />} />
+          <Route path="/services"    element={<ServicesPage />} />
+          <Route path="/our-work"    element={<OurWork />} />
+          <Route path="/contact"     element={<ContactPage />} />
+          <Route path="/donate"      element={<DonatePage />} />
+          <Route path="/volunteer"   element={<Volunteer />} />
+
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      {!isAdminRoute && <Footer />}
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
-      <div className="app dark-mode">
-        <ScrollToTop />
-        <Header />
-        <main>
-          <Routes>
-            <Route path="/"            element={<Home />} />
-            <Route path="/about"       element={<AboutPage />} />
-            <Route path="/services"    element={<ServicesPage />} />
-            <Route path="/our-work"    element={<OurWork />} />
-            <Route path="/contact"     element={<ContactPage />} />
-            <Route path="/donate"      element={<DonatePage />} />
-            <Route path="/volunteer"   element={<Volunteer />} />
-
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <AppLayout />
     </Router>
   );
 }
